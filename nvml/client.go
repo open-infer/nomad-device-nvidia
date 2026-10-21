@@ -26,6 +26,7 @@ type FingerprintDeviceData struct {
 	PCIBandwidthMBPerS *uint
 	CoresClockMHz      *uint
 	MemoryClockMHz     *uint
+	ComputeCapability  *uint
 	DisplayState       string
 	PersistenceMode    string
 	PCIBusID           string
@@ -94,6 +95,7 @@ func (c *nvmlClient) GetFingerprintData() (*FingerprintData, error) {
 		9  - Memory, Cores Clock        # nvmlDeviceGetMaxClockInfo
 		10 - Display Mode               # nvmlDeviceGetDisplayMode
 		11 - Persistence Mode           # nvmlDeviceGetPersistenceMode
+		12 - Compute Capability         # nvmlDeviceGetCudaComputeCapability
 	*/
 
 	// Assumed that this method is called with receiver retrieved from
@@ -133,6 +135,7 @@ func (c *nvmlClient) GetFingerprintData() (*FingerprintData, error) {
 			PCIBandwidthMBPerS: deviceInfo.PCIBandwidthMBPerS,
 			CoresClockMHz:      deviceInfo.CoresClockMHz,
 			MemoryClockMHz:     deviceInfo.MemoryClockMHz,
+			ComputeCapability:  deviceInfo.ComputeCapability,
 			DisplayState:       deviceInfo.DisplayState,
 			PersistenceMode:    deviceInfo.PersistenceMode,
 			PCIBusID:           deviceInfo.PCIBusID,

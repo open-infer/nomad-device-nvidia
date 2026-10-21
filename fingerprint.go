@@ -23,6 +23,11 @@ const (
 	PCIBandwidthAttr    = "pci_bandwidth"
 	DisplayStateAttr    = "display_state"
 	PersistenceModeAttr = "persistence_mode"
+
+	// ComputeCapabilityAttr is the CUDA compute capability as an integer,
+	// major*10+minor (8.9 -> 89), so a job can constrain it numerically.
+	// Not in upstream; added in the OpenInfer fork.
+	ComputeCapabilityAttr = "compute_capability"
 )
 
 // fingerprint is the long running goroutine that detects hardware
@@ -218,6 +223,11 @@ func attributesFromFingerprintDeviceData(d *nvml.FingerprintDeviceData) map[stri
 		attrs[MemoryClockAttr] = &structs.Attribute{
 			Int:  new(int64(*d.MemoryClockMHz)),
 			Unit: structs.UnitMHz,
+		}
+	}
+	if d.ComputeCapability != nil {
+		attrs[ComputeCapabilityAttr] = &structs.Attribute{
+			Int: new(int64(*d.ComputeCapability)),
 		}
 	}
 	if d.PCIBandwidthMBPerS != nil {

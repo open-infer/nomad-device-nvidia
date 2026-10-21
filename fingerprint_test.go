@@ -1360,3 +1360,49 @@ func TestFingerprint(t *testing.T) {
 		})
 	}
 }
+
+// ComputeCapabilityAttr is an OpenInfer-fork addition: an integer, major*10+minor,
+// so a job constrains it numerically (`${device.attr.compute_capability} >= 89`).
+func TestComputeCapabilityAttribute(t *testing.T) {
+	for _, testCase := range []struct {
+		Name     string
+		In       *uint
+		Expected *int64
+	}{
+		{Name: "ada 8.9", In: new(uint(89)), Expected: new(int64(89))},
+		{Name: "hopper 9.0", In: new(uint(90)), Expected: new(int64(90))},
+		{Name: "blackwell 10.0", In: new(uint(100)), Expected: new(int64(100))},
+		{Name: "blackwell 12.0", In: new(uint(120)), Expected: new(int64(120))},
+		{Name: "unreported is omitted", In: nil, Expected: nil},
+	} {
+		t.Run(testCase.Name, func(t *testing.T) {
+			attrs := attributesFromFingerprintDeviceData(&nvml.FingerprintDeviceData{
+				DeviceData:        &nvml.DeviceData{UUID: "1", DeviceName: new("Type1")},
+				ComputeCapability: testCase.In,
+			})
+			got, ok := attrs[ComputeCapabilityAttr]
+			if testCase.Expected == nil {
+				must.False(t, ok)
+				return
+			}
+			must.True(t, ok)
+			must.Eq(t, testCase.Expected, got.Int)
+			must.Eq(t, "", got.Unit) // a bare number: no unit, so it compares as an integer
+			must.Nil(t, got.String)
+			must.Nil(t, got.Float)
+		})
+	}
+}
+
+// Numeric order is the point of the integer encoding: lexically "100" < "89".
+func TestComputeCapabilityOrdersNumerically(t *testing.T) {
+	ada := attributesFromFingerprintDeviceData(&nvml.FingerprintDeviceData{
+		DeviceData: &nvml.DeviceData{UUID: "1"}, ComputeCapability: new(uint(89)),
+	})[ComputeCapabilityAttr]
+	blackwell := attributesFromFingerprintDeviceData(&nvml.FingerprintDeviceData{
+		DeviceData: &nvml.DeviceData{UUID: "2"}, ComputeCapability: new(uint(100)),
+	})[ComputeCapabilityAttr]
+	cmp, ok := blackwell.Compare(ada)
+	must.True(t, ok)
+	must.Eq(t, 1, cmp)
+}

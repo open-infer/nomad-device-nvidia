@@ -51,6 +51,11 @@ type DeviceInfo struct {
 	PCIBandwidthMBPerS *uint
 	CoresClockMHz      *uint
 	MemoryClockMHz     *uint
+
+	// ComputeCapability is the CUDA compute capability as major*10+minor
+	// (8.9 -> 89, 10.0 -> 100). It is nil when nvml cannot report it, in
+	// which case the fingerprint omits the attribute.
+	ComputeCapability *uint
 }
 
 // DeviceStatus represents nvml device status

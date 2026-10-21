@@ -160,6 +160,15 @@ func (n *nvmlDriver) DeviceInfoByUUID(uuid string) (*DeviceInfo, error) {
 		device = parentDevice
 	}
 
+	// Compute capability is a property of the physical device, so it is read
+	// after a MIG handle has been swapped for its parent. Any failure leaves
+	// it nil rather than failing the fingerprint: the attribute is additive.
+	var computeCapability *uint
+	if major, minor, ccCode := nvml.DeviceGetCudaComputeCapability(device); ccCode == nvml.SUCCESS {
+		cc := uint(major*10 + minor)
+		computeCapability = &cc
+	}
+
 	power, code := nvml.DeviceGetPowerUsage(device)
 	if code != nvml.SUCCESS {
 		if code == nvml.ERROR_NOT_SUPPORTED {
@@ -258,6 +267,7 @@ func (n *nvmlDriver) DeviceInfoByUUID(uuid string) (*DeviceInfo, error) {
 		PCIBusID:           busID,
 		CoresClockMHz:      &coreClockU,
 		MemoryClockMHz:     memClockU,
+		ComputeCapability:  computeCapability,
 		DisplayState:       fmt.Sprintf("%v", mode),
 		PersistenceMode:    fmt.Sprintf("%v", persistence),
 	}, nil

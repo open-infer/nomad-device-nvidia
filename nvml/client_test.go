@@ -667,3 +667,22 @@ func TestGetStatsDataFromNVML(t *testing.T) {
 		must.Eq(t, testCase.ExpectedResult, statsData)
 	}
 }
+
+func TestFingerprintCarriesComputeCapability(t *testing.T) {
+	cli := nvmlClient{driver: &MockNVMLDriver{
+		systemDriverCallSuccessful:     true,
+		listDeviceUUIDsSuccessful:      true,
+		deviceInfoByUUIDCallSuccessful: true,
+		driverVersion:                  "1",
+		modes:                          []mode{normal, normal},
+		devices: []*DeviceInfo{
+			{UUID: "A", Name: new("Ada"), PCIBusID: "b", ComputeCapability: new(uint(89))},
+			{UUID: "B", Name: new("NoCC"), PCIBusID: "b"},
+		},
+	}}
+	data, err := cli.GetFingerprintData()
+	must.NoError(t, err)
+	must.Len(t, 2, data.Devices)
+	must.Eq(t, new(uint(89)), data.Devices[0].ComputeCapability)
+	must.Nil(t, data.Devices[1].ComputeCapability)
+}

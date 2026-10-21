@@ -1,5 +1,8 @@
 ## UNRELEASED
 
+OPENINFER FORK (not an upstream release; versions carry an `openinfer.N` prerelease):
+ * fingerprint: Report `compute_capability` per device group as an integer, major*10+minor (8.9 -> 89, 10.0 -> 100), from `nvmlDeviceGetCudaComputeCapability`. Omitted when NVML cannot report it.
+
 BREAKING CHANGES:
  * fingerprint: Report the `power` fingerprint and both `Power usage` values in milliwatts (`mW`), preserving sub-watt precision. Consumers expecting watts must convert units. [[GH-118](https://github.com/hashicorp/nomad-device-nvidia/pull/118)]
 
