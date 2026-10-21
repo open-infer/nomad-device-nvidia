@@ -105,7 +105,7 @@ jobs:
           description: "nomad-device-nvidia is a HashiCorp Nomad device driver for Linux."
           arch: ${{ matrix.goarch }}
           version: ${{ needs.get-product-version.outputs.product-version }}
-          maintainer: "HashiCorp"
+          maintainer: "OpenInfer"
           homepage: "https://github.com/hashicorp/nomad-device-nvidia"
           license: "MPL-2.0"
           binary: "dist/${{ matrix.goos }}_${{ matrix.goarch }}/${{ env.PKG_NAME }}"
